@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GUI from "lil-gui";
 
 /**
@@ -13,6 +14,29 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+
+/**
+ * Loader of the models
+ */
+let duck = null;
+const loader = new GLTFLoader();
+loader.load("./models/Duck/glTF-Binary/Duck.glb", (gltf) => {
+  duck = gltf.scene;
+  duck.position.y = -1.2;
+  scene.add(duck);
+});
+
+/**
+ * Lights
+ */
+//ambient light
+const ambientLight = new THREE.AmbientLight("#FFF", 0.9);
+scene.add(ambientLight);
+
+//directional light
+const directionalLight = new THREE.DirectionalLight("#fff", 2.1);
+directionalLight.position.set(1, 2, 3);
+scene.add(directionalLight);
 
 /**
  * Objects
@@ -145,14 +169,24 @@ const tick = () => {
 
   if (intersects.length) {
     if (currentIntersect === null) {
-      console.log("mouse enter");
+      // console.log("mouse enter");
     }
     currentIntersect = intersects[0];
   } else {
     if (currentIntersect) {
-      console.log("mouse leave");
+      // console.log("mouse leave");
     }
     currentIntersect = null;
+  }
+
+  //intersect with objects
+  if (duck) {
+    const modelIntersects = raycaster.intersectObject(duck);
+    if (modelIntersects.length) {
+      duck.scale.set(1.5, 1.5, 1.5);
+    } else {
+      duck.scale.set(1, 1, 1);
+    }
   }
 
   // Update controls
